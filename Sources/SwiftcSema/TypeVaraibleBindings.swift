@@ -4,7 +4,7 @@ public struct TypeVariableBindings {
     /**
      自分が代表の場合free, fixed、代表転送を持つ場合はtransfer
      */
-    public enum Binding {
+    @frozen public enum Binding {
         case free
         case fixed(Type)
         case transfer(TypeVariable)
@@ -33,6 +33,37 @@ public struct TypeVariableBindings {
             return
         }
         
+        func update(variable: TypeVariable, binding: Binding) {
+            map
+                .filter {
+                    switch $0.value {
+                    case .transfer(variable):
+                        return true
+                    default:
+                        return false
+                    }
+                }
+                .forEach { (key, value) in
+                    setBinding(for: key, binding)
+            }
+        }
+        
+        if type1 > type2 {
+            if type1.isRepresentative(bindings: self) {
+                setBinding(for: type1, .transfer(type2))
+                update(variable: type1, binding: .transfer(type2))
+            } else {
+                merge(type1: type1.representative(bindings: self), type2: type2)
+            }
+        } else {
+            if type2.isRepresentative(bindings: self) {
+                setBinding(for: type2, .transfer(type1))
+                update(variable: type2, binding: .transfer(type1))
+            } else {
+                merge(type1: type1, type2: type2.representative(bindings: self))
+            }
+        }
+            
         // <Q03 hint="understand data structure" />
     }
     

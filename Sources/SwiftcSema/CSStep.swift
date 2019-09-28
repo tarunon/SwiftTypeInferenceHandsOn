@@ -65,6 +65,21 @@ extension ConstraintSystem {
             
             let bestBindingsOrNone = cts.determineBestBindings()
             let disjunctionOrNone = cts.selectDisjunction()
+
+           if let bestBindings = bestBindingsOrNone {
+               let step = TypeVariableStep(work: work, bindings: bestBindings)
+               if step.run() {
+                  return true
+               }
+           }
+            
+            if let disjunction = disjunctionOrNone {
+                let step = DisjunctionStep(work: work, disjunction: disjunction)
+                if step.run() {
+                    return true
+                }
+            }
+            
             
             // consider priority for bindings and disjunctions
             
@@ -113,6 +128,9 @@ extension ConstraintSystem {
             var isAnySolved = false
             
             for binding in bindings.bindings {
+                if attempt(binding: binding) {
+                    isAnySolved = true
+                }
                 // <Q11 hint="see DisjunctionStep" />
             }
             
