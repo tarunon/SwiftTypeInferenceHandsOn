@@ -122,7 +122,7 @@ extension ConstraintSystem.Solution {
                     throw MessageError("not optional")
                 }
                 // <Q12 hint="use `InjectIntoOptionalExpr` and `coerce`" />
-                let expr = try coerce(expr: InjectIntoOptionalExpr(subExpr: expr, type: toTy), to: toTy.wrapped)                
+                let expr = try InjectIntoOptionalExpr(subExpr: coerce(expr: expr, to: toTy.wrapped), type: toTy)
                 return expr
             case .optionalToOptional:
                 return try coerceOptionalToOptional(expr: expr, to: toTy)
