@@ -182,24 +182,21 @@ extension ConstraintSystem {
         }
         
         let subOptions = decompositionOptions(options)
+
+        // <Q02 hint="match arg and ret" />
+
+        let r1 = matchTypes(kind: subKind, left: leftRet, right: rightRet, options: subOptions)
         
-        switch matchTypes(kind: subKind,
-                          left: leftArg,
-                          right: rightArg,
-                          options: subOptions) {
-        case .failure: return .failure
-        case .ambiguous: preconditionFailure()
-        case .solved: break
-        }
+        // Note-t: left<->right reversed?
+        let r2 = matchTypes(kind: subKind, left: rightArg, right: leftArg, options: subOptions)
         
-        // contravariance
-        switch matchTypes(kind: subKind,
-                          left: rightRet,
-                          right: leftRet,
-                          options: subOptions) {
-        case .failure: return .failure
-        case .ambiguous: preconditionFailure()
-        case .solved: break
+        switch (r1, r2) {
+        case (.failure, _), (_, .failure):
+            return .failure
+        case (.ambiguous, _), (_, .ambiguous):
+            return .ambiguous
+        default:
+            break
         }
         
         return .solved
@@ -211,13 +208,11 @@ extension ConstraintSystem {
     {
         let subOptions = decompositionOptions(options)
         
+        // <Q01 hint="consider primitive type" />
+        
         if let leftType = leftType as? PrimitiveType,
-            let rightType = rightType as? PrimitiveType
-        {
-            if leftType.name != rightType.name {
-                return .failure
-            }
-            
+        let rightType = rightType as? PrimitiveType,
+            leftType.name == rightType.name {
             return .solved
         }
         

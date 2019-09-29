@@ -46,7 +46,12 @@ public final class TypeChecker {
                         varTy = exprTy
                     }
                     
-                    cts.addConstraint(kind: .conversion, left: exprTy, right: varTy)
+                    let type = cts.createTypeVariable()
+
+                    cts.addConstraint(kind: .conversion, left: type, right: varTy)
+                    expr.type = type
+
+                    // <Q05 hint="call addConstraint"/>
             },
                 didFoundSolution: nil,
                 didApplySolution: { (cts, solution, expr, context) -> Expr in
@@ -54,7 +59,7 @@ public final class TypeChecker {
                     vd.type = varTy
                     
                     let expr = try solution.coerce(expr: expr, to: varTy)
-                    vd.initializer = expr                    
+                    // <Q13 hint="see visitCallExpr" />
                     return expr
             })
                 
